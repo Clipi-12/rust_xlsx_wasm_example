@@ -1,0 +1,108 @@
+[env]
+PROJECT_NAME = "rust_xlsx_wasm_example"
+WASM_UNKNOWN = "wasm32-unknown-unknown"
+WASM_WASI = "wasm32-wasi"
+PROFILE_NAME = "debug"
+PROFILE_FLAG = "dev"
+IS_RELEASE = false
+
+[env.release]
+PROFILE_NAME = "release"
+PROFILE_FLAG = "release"
+IS_RELEASE = true
+
+[tasks.all]
+dependencies = ["browser", "nodejs", "deno", "wasi"]
+
+[tasks.browser]
+private = false
+env = { "CARGO_FEATURE" = "browser", "JAVASCRIPT" = true, "WASM_TARGET" = "${WASM_UNKNOWN}", "WASM_DIRECTORY" = "browser", "BINDGEN_TARGET" = "no-modules" }
+extend = "build_and_process"
+
+[tasks.nodejs]
+private = false
+env = { "CARGO_FEATURE" = "nodejs", "JAVASCRIPT" = true, "WASM_TARGET" = "${WASM_UNKNOWN}", "WASM_DIRECTORY" = "nodejs", "BINDGEN_TARGET" = "nodejs" }
+extend = "build_and_process"
+
+[tasks.deno]
+private = false
+env = { "CARGO_FEATURE" = "deno", "JAVASCRIPT" = true, "WASM_TARGET" = "${WASM_UNKNOWN}", "WASM_DIRECTORY" = "deno", "BINDGEN_TARGET" = "deno" }
+extend = "build_and_process"
+
+[tasks.wasi]
+private = false
+env = { "CARGO_FEATURE" = "default", "JAVASCRIPT" = false, "WASM_TARGET" = "${WASM_WASI}", "WASM_DIRECTORY" = "wasi" }
+extend = "build_and_process"
+
+[tasks.build_and_process]
+private = true
+run_task = { name = [
+	"build",
+	"bindgen",
+	"optimize",
+	"copy_wasm_to_pkg",
+	"copy_static_files",
+] }
+
+[tasks.build]
+private = true
+command = "cargo"
+args = [
+	"build",
+	"--features",
+	"${CARGO_FEATURE}",
+	"--profile",
+	"${PROFILE_FLAG}",
+	"--target",
+	"${WASM_TARGET}",
+]
+
+[tasks.bindgen]
+condition = { env_true = ["JAVASCRIPT"] }
+dependencies = ["build"]
+private = true
+command = "wasm-bindgen"
+args = [
+	"target/${WASM_TARGET}/${PROFILE_NAME}/${PROJECT_NAME}.wasm",
+	"--out-dir",
+	"pkg/${WASM_DIRECTORY}",
+	"--no-typescript",
+	"--target",
+	"${BINDGEN_TARGET}",
+]
+
+[tasks.optimize]
+condition = { env_true = ["JAVASCRIPT", "IS_RELEASE"] }
+command = "wasm-opt"
+args = [
+	"pkg/${WASM_DIRECTORY}/${PROJECT_NAME}_bg.wasm",
+	"-o",
+	"pkg/${WASM_DIRECTORY}/${PROJECT_NAME}_bg.wasm",
+	"-O4",
+]
+
+[tasks.copy_wasm_to_pkg]
+condition = { env_false = ["JAVASCRIPT"] }
+private = true
+dependencies = ["bindgen"]
+script_runner = "@duckscript"
+script = '''
+	cp target/${WASM_TARGET}/${PROFILE_NAME}/${PROJECT_NAME}.wasm pkg/${WASM_DIRECTORY}/${PROJECT_NAME}.wasm
+'''
+
+
+[tasks.copy_static_files]
+private = true
+script_runner = "@duckscript"
+script = '''
+	glob_cp static_data/${WASM_DIRECTORY}/**/* pkg/${WASM_DIRECTORY}/
+'''
+
+
+[tasks.clean]
+clear = true
+script_runner = "@duckscript"
+script = '''
+	rm -r pkg
+	exec --fail-on-error cargo clean
+'''

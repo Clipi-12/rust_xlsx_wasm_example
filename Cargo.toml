@@ -1,0 +1,32 @@
+[package]
+name = "rust_xlsx_wasm_example"
+version = "0.1.0"
+edition = "2021"
+license = "LGPL-3.0-or-later"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[features]
+default = []
+browser = []
+nodejs = []
+deno = []
+
+[dependencies]
+rust_xlsxwriter = { git = "https://github.com/jmcnamara/rust_xlsxwriter.git", branch = "wasm", features = [
+	"wasm",
+] }
+
+[target.'cfg(all(target_arch = "wasm32", not(any(target_os = "emscripten", target_os = "wasi"))))'.dependencies]
+wasm-bindgen = "0.2.87"
+js-sys = "0.3.64"
+
+[target.'cfg(all(features = "browser", target_arch = "wasm32", not(any(target_os = "emscripten", target_os = "wasi"))))'.dependencies]
+web-sys = { version = "0.3.64", features = [
+	"Window",
+	"Document",
+	"Url",
+	"Blob",
+	"HtmlAnchorElement",
+] }
