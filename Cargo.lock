@@ -165,7 +165,7 @@ dependencies = [
 [[package]]
 name = "rust_xlsxwriter"
 version = "0.46.0"
-source = "git+https://github.com/jmcnamara/rust_xlsxwriter.git?branch=wasm#b0c2a687b2af48bf9d04414c9b855d8016e0e0d5"
+source = "git+https://github.com/jmcnamara/rust_xlsxwriter.git?branch=wasm#6569f5c66a4ce974ff7ceab86a983abf97d69b56"
 dependencies = [
  "js-sys",
  "lazy_static",

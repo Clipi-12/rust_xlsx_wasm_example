@@ -7,6 +7,11 @@ license = "LGPL-3.0-or-later"
 [lib]
 crate-type = ["cdylib", "rlib"]
 
+[[bin]]
+# WASI will compile to a binary, like most targets do
+name = "bin_example"
+path = "src/main.rs"
+
 [features]
 default = []
 browser = ["dep:web-sys"]

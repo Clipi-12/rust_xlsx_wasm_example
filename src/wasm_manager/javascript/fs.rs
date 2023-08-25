@@ -11,29 +11,33 @@ fn err_js_to_io(err: JsValue) -> io::Error {
 
 #[cfg(feature = "browser")]
 pub fn save_buffer(path: impl AsRef<Path>, buf: impl AsRef<[u8]>) -> io::Result<()> {
+    // If we are in a browser...
     use js_sys::{Array, Uint8Array};
     use std::ffi::OsStr;
     use web_sys::Url;
     fn inner(path: impl AsRef<Path>, buf: impl AsRef<[u8]>) -> Result<(), JsValue> {
+        // ... get the filename (the rest of the path is irrelevant)...
         let path = path
             .as_ref()
             .file_name()
             .and_then(OsStr::to_str)
             .unwrap_or("");
 
+        // ... create an <a></a> tag...
         let doc = web_sys::window().unwrap().document().unwrap();
         let body = doc.body().unwrap();
         let anchor: JsValue = doc.create_element("a")?.into();
         let anchor: web_sys::HtmlAnchorElement = anchor.into();
 
+        // ... transform the buffer to a blob url...
         let buf: Uint8Array = buf.as_ref().into();
         let buf = Array::of1(&buf);
         let file = web_sys::Blob::new_with_u8_array_sequence(&buf)?;
         let url = Url::create_object_url_with_blob(&file)?;
 
+        // ... then use that url to download the buffer
         anchor.set_href(&url);
         anchor.set_download(path);
-
         body.append_child(&anchor)?;
         anchor.click();
         body.remove_child(&anchor)?;

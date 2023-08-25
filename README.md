@@ -2,16 +2,19 @@
 
 # Issues / TODOS
 * This is supposed to be a minimal example of using rust_xlsxwriter, but it is quite a large project to be considered minimal. This will be difficult to fix, though, since most files are present to replace unimplemented-std-methods with browser/javascript-vm functions
-* All targets but WASI seem to generate .xlsx files that throw warnings upon opening (although the contents of the file seem to be ok). This problem may be related to a bug in rust_xlsxwriter that uses `javascript.Date.now()` as seconds since UNIX_EPOCH (instead of milliseconds)
-* Node and Deno seem to crash javascript-side whenever an io error occurs (instead of throwing an error that we could catch in Rust)
+* Node and Deno crash javascript-side whenever an io error occurs (instead of returning a Result that we could catch in Rust)
 
 
 # Setup
 > cargo install cargo-make
 
-> cargo install wasm-bindgen-cli
+Dependencies needed to build against a browser, Nodejs, or Deno:
+> rustup target add wasm32-unknown-unknown
 
-> cargo install wasm-opt
+> cargo install wasm-bindgen-cli wasm-opt
+
+Dependencies needed to build against WASI:
+> rustup target add wasm32-wasi
 
 # Building and Running
 
@@ -35,9 +38,9 @@
 > deno run --allow-write --allow-read pkg/deno/rust_xlsx_wasm_example.js
 
 ### Running ___natively___ in WASI
-You will need to have [Wasmtime](https://wasmtime.dev/) installed
 > cargo make [-p release] wasi
 
+In order to __run__ the .wasm file, you will need to have [Wasmtime](https://wasmtime.dev/) installed
 > wasmtime --dir=. pkg/wasi/rust_xlsx_wasm_example.wasm
 
 `--dir=.` allows WASM to _preopen_ the current directory (essentially giving it access to it, which it normally can't since WASM is sandboxed) 

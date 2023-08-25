@@ -1,5 +1,6 @@
 [env]
 PROJECT_NAME = "rust_xlsx_wasm_example"
+BIN_NAME = "bin_example"
 WASM_UNKNOWN = "wasm32-unknown-unknown"
 WASM_WASI = "wasm32-wasi"
 PROFILE_NAME = "debug"
@@ -15,23 +16,24 @@ IS_RELEASE = true
 dependencies = ["browser", "nodejs", "deno", "wasi"]
 
 [tasks.browser]
-private = false
-env = { "CARGO_FEATURE" = "browser", "JAVASCRIPT" = true, "WASM_TARGET" = "${WASM_UNKNOWN}", "WASM_DIRECTORY" = "browser", "BINDGEN_TARGET" = "no-modules" }
-extend = "build_and_process"
+env = { "CARGO_FEATURE" = "browser", "WASM_DIRECTORY" = "browser", "BINDGEN_TARGET" = "no-modules" }
+run_task = { name = "javascript" }
 
 [tasks.nodejs]
-private = false
-env = { "CARGO_FEATURE" = "nodejs", "JAVASCRIPT" = true, "WASM_TARGET" = "${WASM_UNKNOWN}", "WASM_DIRECTORY" = "nodejs", "BINDGEN_TARGET" = "nodejs" }
-extend = "build_and_process"
+env = { "CARGO_FEATURE" = "nodejs", "WASM_DIRECTORY" = "nodejs", "BINDGEN_TARGET" = "nodejs" }
+run_task = { name = "javascript" }
 
 [tasks.deno]
-private = false
-env = { "CARGO_FEATURE" = "deno", "JAVASCRIPT" = true, "WASM_TARGET" = "${WASM_UNKNOWN}", "WASM_DIRECTORY" = "deno", "BINDGEN_TARGET" = "deno" }
+env = { "CARGO_FEATURE" = "deno", "WASM_DIRECTORY" = "deno", "BINDGEN_TARGET" = "deno" }
+run_task = { name = "javascript" }
+
+[tasks.javascript]
+env = { "JAVASCRIPT" = true, "CARGO_TARGET" = "--lib", "WASM_TARGET" = "${WASM_UNKNOWN}", "FILE_NAME" = "${PROJECT_NAME}" }
 extend = "build_and_process"
 
 [tasks.wasi]
 private = false
-env = { "CARGO_FEATURE" = "default", "JAVASCRIPT" = false, "WASM_TARGET" = "${WASM_WASI}", "WASM_DIRECTORY" = "wasi" }
+env = { "JAVASCRIPT" = false, "CARGO_TARGET" = "--bins", "WASM_TARGET" = "${WASM_WASI}", "FILE_NAME" = "${BIN_NAME}", "CARGO_FEATURE" = "default", "WASM_DIRECTORY" = "wasi" }
 extend = "build_and_process"
 
 [tasks.build_and_process]
@@ -46,7 +48,6 @@ run_task = { name = [
 
 [tasks.build]
 private = true
-command = "cargo"
 args = [
 	"build",
 	"--features",
@@ -55,15 +56,15 @@ args = [
 	"${PROFILE_FLAG}",
 	"--target",
 	"${WASM_TARGET}",
+	"${CARGO_TARGET}",
 ]
 
 [tasks.bindgen]
 condition = { env_true = ["JAVASCRIPT"] }
-dependencies = ["build"]
 private = true
 command = "wasm-bindgen"
 args = [
-	"target/${WASM_TARGET}/${PROFILE_NAME}/${PROJECT_NAME}.wasm",
+	"target/${WASM_TARGET}/${PROFILE_NAME}/${FILE_NAME}.wasm",
 	"--out-dir",
 	"pkg/${WASM_DIRECTORY}",
 	"--no-typescript",
@@ -75,19 +76,21 @@ args = [
 condition = { env_true = ["JAVASCRIPT", "IS_RELEASE"] }
 command = "wasm-opt"
 args = [
-	"pkg/${WASM_DIRECTORY}/${PROJECT_NAME}_bg.wasm",
+	"pkg/${WASM_DIRECTORY}/${FILE_NAME}_bg.wasm",
 	"-o",
-	"pkg/${WASM_DIRECTORY}/${PROJECT_NAME}_bg.wasm",
+	"pkg/${WASM_DIRECTORY}/${FILE_NAME}_bg.wasm",
 	"-O4",
 ]
 
 [tasks.copy_wasm_to_pkg]
 condition = { env_false = ["JAVASCRIPT"] }
 private = true
-dependencies = ["bindgen"]
 script_runner = "@duckscript"
 script = '''
-	cp target/${WASM_TARGET}/${PROFILE_NAME}/${PROJECT_NAME}.wasm pkg/${WASM_DIRECTORY}/${PROJECT_NAME}.wasm
+	# Copy from `target/[...]/${FILE_NAME}.wasm` to `pkg/[...]/${PROJECT_NAME}.wasm`
+	# so that the final output has a similar filename as the other targets
+
+	cp target/${WASM_TARGET}/${PROFILE_NAME}/${FILE_NAME}.wasm pkg/${WASM_DIRECTORY}/${PROJECT_NAME}.wasm
 '''
 
 

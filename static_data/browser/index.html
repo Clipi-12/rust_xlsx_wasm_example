@@ -2,10 +2,14 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<title>WASM rust_xlsx example</title>
+	<title>WASM rust_xlsxwriter example</title>
 	<script src="rust_xlsx_wasm_example.js"></script>
 </head>
 <body>
-	<script src="index.js"></script>
+	<script>
+		// This script tag hast be inside the body because we may append
+		// some elements to the body with wasm, so it has to be loaded by then
+		wasm_bindgen("rust_xlsx_wasm_example_bg.wasm");
+	</script>
 </body>
 </html>
