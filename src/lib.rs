@@ -3,13 +3,7 @@ use rust_xlsxwriter::{Workbook, XlsxError};
 mod wasm_manager;
 use wasm_manager::*;
 
-#[cfg_attr(
-    all(
-        target_arch = "wasm32",
-        not(any(target_os = "emscripten", target_os = "wasi"))
-    ),
-    wasm_bindgen::prelude::wasm_bindgen(start)
-)]
+#[cfg_attr(feature = "javascript", wasm_bindgen::prelude::wasm_bindgen(start))]
 pub fn start() -> Result<(), XlsxError> {
     std::panic::set_hook(Box::new(|panic_info| log::log(&panic_info.to_string())));
 

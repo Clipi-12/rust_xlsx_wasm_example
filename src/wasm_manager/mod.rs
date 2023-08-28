@@ -1,17 +1,8 @@
-#[cfg(all(
-    target_arch = "wasm32",
-    not(any(target_os = "emscripten", target_os = "wasi"))
-))]
+#[cfg(feature = "javascript")]
 mod javascript;
-#[cfg(all(
-    target_arch = "wasm32",
-    not(any(target_os = "emscripten", target_os = "wasi"))
-))]
+#[cfg(feature = "javascript")]
 pub use javascript::*;
-#[cfg(all(
-    target_arch = "wasm32",
-    not(any(target_os = "emscripten", target_os = "wasi"))
-))]
+#[cfg(feature = "javascript")]
 #[cfg(any(
     all(feature = "browser", feature = "node"),
     all(feature = "browser", feature = "deno"),
@@ -20,13 +11,7 @@ pub use javascript::*;
 ))]
 compile_error!("Feature \"browser\", \"nodejs\", and \"deno\" are mutually exclusive, but at least one of them has to be set when compiling to wasm32-unknown-unknown");
 
-#[cfg(not(all(
-    target_arch = "wasm32",
-    not(any(target_os = "emscripten", target_os = "wasi"))
-)))]
+#[cfg(not(feature = "javascript"))]
 mod native;
-#[cfg(not(all(
-    target_arch = "wasm32",
-    not(any(target_os = "emscripten", target_os = "wasi"))
-)))]
+#[cfg(not(feature = "javascript"))]
 pub use native::*;
