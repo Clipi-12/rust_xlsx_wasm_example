@@ -14,18 +14,15 @@ path = "src/main.rs"
 
 [features]
 default = []
-browser = ["dep:web-sys"]
-nodejs = []
-deno = []
+browser = ["javascript", "dep:web-sys"]
+nodejs = ["javascript"]
+deno = ["javascript"]
+javascript = ["rust_xlsxwriter/javascript", "dep:js-sys", "dep:wasm-bindgen"]
 
 [dependencies]
-rust_xlsxwriter = { git = "https://github.com/jmcnamara/rust_xlsxwriter.git", branch = "wasm", features = [
-	"wasm",
-] }
-
-[target.'cfg(all(target_arch = "wasm32", not(any(target_os = "emscripten", target_os = "wasi"))))'.dependencies]
-wasm-bindgen = "0.2.87"
-js-sys = "0.3.64"
+rust_xlsxwriter = { git = "https://github.com/jmcnamara/rust_xlsxwriter.git", branch = "wasm2" }
+wasm-bindgen = { version = "0.2.87", optional = true }
+js-sys = { version = "0.3.64", optional = true }
 web-sys = { version = "0.3.64", features = [
 	"Window",
 	"Document",

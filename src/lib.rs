@@ -1,8 +1,3 @@
-use std::{
-    fmt::{Debug, Display},
-    io,
-};
-
 use rust_xlsxwriter::{Workbook, XlsxError};
 
 mod wasm_manager;
@@ -15,7 +10,7 @@ use wasm_manager::*;
     ),
     wasm_bindgen::prelude::wasm_bindgen(start)
 )]
-pub fn start() -> Result<(), Error> {
+pub fn start() -> Result<(), XlsxError> {
     std::panic::set_hook(Box::new(|panic_info| log::log(&panic_info.to_string())));
 
     let mut workbook = Workbook::new();
@@ -27,28 +22,4 @@ pub fn start() -> Result<(), Error> {
     fs::save_buffer("hello-world-example.xlsx", buf)?;
 
     Ok(())
-}
-
-#[derive(Debug)]
-pub enum Error {
-    Xlsx(XlsxError),
-    IO(io::Error),
-}
-
-impl From<XlsxError> for Error {
-    fn from(value: XlsxError) -> Self {
-        Self::Xlsx(value)
-    }
-}
-
-impl From<io::Error> for Error {
-    fn from(value: io::Error) -> Self {
-        Self::IO(value)
-    }
-}
-
-impl Display for Error {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        Debug::fmt(self, f)
-    }
 }

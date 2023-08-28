@@ -30,13 +30,3 @@ mod native;
     not(any(target_os = "emscripten", target_os = "wasi"))
 )))]
 pub use native::*;
-
-#[cfg(all(
-    target_arch = "wasm32",
-    not(any(target_os = "emscripten", target_os = "wasi"))
-))]
-impl From<crate::Error> for wasm_bindgen::JsValue {
-    fn from(value: crate::Error) -> Self {
-        wasm_bindgen::JsValue::from_str(&value.to_string())
-    }
-}
