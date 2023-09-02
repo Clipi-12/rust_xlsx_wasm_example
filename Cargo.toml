@@ -17,10 +17,10 @@ default = []
 browser = ["javascript", "dep:web-sys"]
 nodejs = ["javascript"]
 deno = ["javascript"]
-javascript = ["rust_xlsxwriter/wasm", "dep:js-sys", "dep:wasm-bindgen"]
+javascript = ["dep:js-sys", "dep:wasm-bindgen"]
 
 [dependencies]
-rust_xlsxwriter = { git = "https://github.com/jmcnamara/rust_xlsxwriter.git" }
+rust_xlsxwriter = { version = ">=0.47.0", features = ["wasm"] }
 wasm-bindgen = { version = "0.2.87", optional = true }
 js-sys = { version = "0.3.64", optional = true }
 web-sys = { version = "0.3.64", features = [
