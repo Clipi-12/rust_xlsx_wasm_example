@@ -4,7 +4,7 @@ mod javascript;
 pub use javascript::*;
 #[cfg(feature = "javascript")]
 #[cfg(any(
-    all(feature = "browser", feature = "node"),
+    all(feature = "browser", feature = "nodejs"),
     all(feature = "browser", feature = "deno"),
     all(feature = "nodejs", feature = "deno"),
     not(any(feature = "browser", feature = "nodejs", feature = "deno")),

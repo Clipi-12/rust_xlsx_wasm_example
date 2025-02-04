@@ -21,9 +21,9 @@ javascript = ["dep:js-sys", "dep:wasm-bindgen"]
 
 [dependencies]
 rust_xlsxwriter = { version = ">=0.47.0", features = ["wasm"] }
-wasm-bindgen = { version = "0.2.87", optional = true }
-js-sys = { version = "0.3.64", optional = true }
-web-sys = { version = "0.3.64", features = [
+wasm-bindgen = { version = "0.2.100", optional = true }
+js-sys = { version = "0.3.77", optional = true }
+web-sys = { version = "0.3.77", features = [
 	"Window",
 	"Document",
 	"Url",

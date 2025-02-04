@@ -2,7 +2,7 @@
 PROJECT_NAME = "rust_xlsx_wasm_example"
 BIN_NAME = "bin_example"
 WASM_UNKNOWN = "wasm32-unknown-unknown"
-WASM_WASI = "wasm32-wasi"
+WASM_WASI = "wasm32-wasip1"
 PROFILE_NAME = "debug"
 PROFILE_FLAG = "dev"
 IS_RELEASE = false
